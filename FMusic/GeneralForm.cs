@@ -9,6 +9,7 @@ namespace FMusic
     public partial class GeneralForm : Form
     {
         private Panel gpanel = null;
+        private ContextMenuStrip cms = null;
         private List<ItemPanel> items = null;
 
         private delegate void _RError(string msg);
@@ -18,7 +19,7 @@ namespace FMusic
         {
             InitializeComponent();
 
-            this.Size = new Size(545, 270);
+            this.Size = new Size(545, 285);
             this.Resize += GeneralForm_Resize;
 
             gpanel = new Panel();
@@ -26,6 +27,7 @@ namespace FMusic
             gpanel.Location = new Point(0, 24);
             gpanel.Size = new Size(this.Size.Width - 15, this.Size.Height - 60);
             gpanel.Resize += Gpanel_Resize;
+            gpanel.MouseClick += Gpanel_MouseClick;
             this.Controls.Add(gpanel);
 
             ErrorEvent += GeneralForm_ErrorEvent;
@@ -41,6 +43,10 @@ namespace FMusic
         private void GeneralForm_Load(object sender, EventArgs e)
         {
             initProg();
+        }
+        private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Environment.Exit(0);
         }
 
         private void Item_ItemClicked(int id, EventArgs e)
@@ -60,27 +66,29 @@ namespace FMusic
                     foreach (var i in items)
                         if (i.getID == id)
                         {
-                            using (ChangeFloppySettings cfs = new ChangeFloppySettings(this, i.getID, i.getStepPin, i.getDirPin))
+                            if (cms != null) cms.Items.Clear();
+                            cms = new ContextMenuStrip();
+                            cms.Items.Add("Изменить");
+                            cms.Items.Add("Удалить");
+                            cms.Items[0].Click += (object sender, EventArgs ex) => 
                             {
-                                cfs.ShowDialog();
-                                if (cfs.DialogResult == DialogResult.OK)
+                                using (ChangeFloppySettings cfs = new ChangeFloppySettings(this, i.getID, i.getStepPin, i.getDirPin))
                                 {
+                                    cfs.ShowDialog();
+                                    if (cfs.DialogResult == DialogResult.OK)
+                                        initProg();
+                                }
+                            };
+                            cms.Items[1].Click += (object sender, EventArgs ex) => 
+                            {
+                                if(MessageBox.Show("Удалить floppy привод?", "Подтвердите действие", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                {
+                                    removeDrives(i.getID);
                                     initProg();
                                 }
-                                else if (cfs.DialogResult == DialogResult.Cancel)
-                                {
-                                    //
-                                }
-                                else if (cfs.DialogResult == DialogResult.Abort)
-                                {
-                                    //
-                                }
-                                else
-                                {
-                                    //
-                                }
-                                break;
-                            }
+                            };
+                            cms.Show(i.getItem, new Point((e as MouseEventArgs).X, (e as MouseEventArgs).Y));
+                            break;
                         }
                 }
                 else { }
@@ -88,6 +96,25 @@ namespace FMusic
             catch (Exception ex)
             {
                 ErrorEvent(ex.Message);
+            }
+        }
+        private void Gpanel_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                if(cms != null) cms.Items.Clear();
+                cms = new ContextMenuStrip();
+                cms.Items.Add("Добавить привод");
+                cms.Items[0].Click += (object ssender, EventArgs se) => 
+                {
+                    using (ChangeFloppySettings cfs = new ChangeFloppySettings(this))
+                    {
+                        cfs.ShowDialog();
+                        if (cfs.DialogResult == DialogResult.OK)
+                            initProg();
+                    }
+                };
+                cms.Show(gpanel, new Point(e.X, e.Y));
             }
         }
 
@@ -201,6 +228,30 @@ namespace FMusic
                     sw.Close();
                 }
                 stream.Close();
+            }
+        }
+        private void removeDrives(int id)
+        {
+            if (File.Exists("settings.cfg"))
+            {
+                using (StreamReader sr = new StreamReader("settings.cfg"))
+                {
+                    List<string> lines = new List<string>();
+                    while (true)
+                    {
+                        string line = sr.ReadLine();
+                        if (line == null) break;
+                        lines.Add(line);
+                    }
+                    sr.Close();
+                    lines.RemoveAll((string s) => { if (s.Contains("floppy " + id.ToString())) return true; else return false; });
+                    using (StreamWriter sw = new StreamWriter("settings.cfg", false))
+                    {
+                        foreach (var i in lines)
+                            sw.WriteLine(i);
+                        sw.Close();
+                    }
+                }
             }
         }
     }

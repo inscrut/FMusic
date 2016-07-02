@@ -36,7 +36,6 @@
             this.numericUpDown_id = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_step = new System.Windows.Forms.NumericUpDown();
             this.numericUpDown_dir = new System.Windows.Forms.NumericUpDown();
-            this.button_remove = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_id)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_step)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown_dir)).BeginInit();
@@ -77,7 +76,6 @@
             this.button_accept.TabIndex = 2;
             this.button_accept.Text = "OK";
             this.button_accept.UseVisualStyleBackColor = true;
-            this.button_accept.Click += new System.EventHandler(this.button_accept_Click);
             // 
             // button_cancel
             // 
@@ -87,7 +85,6 @@
             this.button_cancel.TabIndex = 2;
             this.button_cancel.Text = "Cancel";
             this.button_cancel.UseVisualStyleBackColor = true;
-            this.button_cancel.Click += new System.EventHandler(this.button_cancel_Click);
             // 
             // numericUpDown_id
             // 
@@ -115,16 +112,6 @@
             this.numericUpDown_dir.Size = new System.Drawing.Size(64, 20);
             this.numericUpDown_dir.TabIndex = 3;
             // 
-            // button_remove
-            // 
-            this.button_remove.Location = new System.Drawing.Point(100, 99);
-            this.button_remove.Name = "button_remove";
-            this.button_remove.Size = new System.Drawing.Size(75, 23);
-            this.button_remove.TabIndex = 2;
-            this.button_remove.Text = "Remove";
-            this.button_remove.UseVisualStyleBackColor = true;
-            this.button_remove.Click += new System.EventHandler(this.button_remove_Click);
-            // 
             // ChangeFloppySettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -134,7 +121,6 @@
             this.Controls.Add(this.numericUpDown_step);
             this.Controls.Add(this.numericUpDown_id);
             this.Controls.Add(this.button_cancel);
-            this.Controls.Add(this.button_remove);
             this.Controls.Add(this.button_accept);
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
@@ -161,6 +147,5 @@
         private System.Windows.Forms.NumericUpDown numericUpDown_id;
         private System.Windows.Forms.NumericUpDown numericUpDown_step;
         private System.Windows.Forms.NumericUpDown numericUpDown_dir;
-        private System.Windows.Forms.Button button_remove;
     }
 }
