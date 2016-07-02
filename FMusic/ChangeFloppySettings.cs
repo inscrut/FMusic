@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
@@ -21,6 +22,9 @@ namespace FMusic
 
             ErrorEvent = new _refError(gf.GeneralForm_ErrorEvent);
 
+            button_accept.Click += button_accept_Click;
+            button_cancel.Click += button_cancel_Click;
+
             numericUpDown_id.Value = id;
             numericUpDown_step.Value = step;
             numericUpDown_dir.Value = direct;
@@ -28,6 +32,28 @@ namespace FMusic
             numericUpDown_id.ValueChanged += NumericUpDown_ValueChanged;
             numericUpDown_step.ValueChanged += NumericUpDown_ValueChanged;
             numericUpDown_dir.ValueChanged += NumericUpDown_ValueChanged;
+        }
+
+        public ChangeFloppySettings(GeneralForm gf)
+        {
+            InitializeComponent();
+
+            ErrorEvent = new _refError(gf.GeneralForm_ErrorEvent);
+
+            button_accept.Click += button_CreatePanel;
+            button_accept.Text = "Create";
+            button_cancel.Click += button_cancel_Click;
+
+            this.Text = "Добавить новый floppy привод";
+
+            numericUpDown_id.ValueChanged += NumericUpDown_ValueChanged;
+            numericUpDown_step.ValueChanged += NumericUpDown_ValueChanged;
+            numericUpDown_dir.ValueChanged += NumericUpDown_ValueChanged;
+        }
+
+        private void button_RemovePanel(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
         }
 
         private void NumericUpDown_ValueChanged(object sender, EventArgs e)
@@ -47,13 +73,13 @@ namespace FMusic
             changeConf(_id_obj, false, fs);
             result(DialogResult.OK);
         }
-        private void button_remove_Click(object sender, EventArgs e)
+        private void button_CreatePanel(object sender, EventArgs e)
         {
             fs = new FloppySettings(
                 Convert.ToInt32(numericUpDown_id.Value),
                 Convert.ToInt32(numericUpDown_step.Value),
                 Convert.ToInt32(numericUpDown_dir.Value));
-            changeConf(_id_obj, true, fs);
+            addConf(fs);
             result(DialogResult.OK);
         }
         private void button_cancel_Click(object sender, EventArgs e)
@@ -107,6 +133,32 @@ namespace FMusic
                                 sw.WriteLine(i);
                             sw.Close();
                         }
+                    }
+                }
+                else
+                {
+                    ErrorEvent("Не найден файл settings.cfg !");
+                    result(DialogResult.Abort);
+                }
+            }
+            catch (Exception e)
+            {
+                ErrorEvent(e.Message);
+            }
+        }
+        private void addConf(FloppySettings settings)
+        {
+            try
+            {
+                if (File.Exists("settings.cfg"))
+                {
+                    using (StreamWriter sw = new StreamWriter("settings.cfg", true))
+                    {
+                        sw.WriteLine(
+                            "floppy " + settings.getID + " "
+                            + settings.getStepPin + " "
+                            + settings.getDirPin);
+                        sw.Close();
                     }
                 }
                 else
