@@ -53,7 +53,7 @@ namespace FMusic
 
             item = new Panel();
             item.Size = new Size(256, 96);
-            item.BackColor = Color.Red;
+            item.BackColor = Color.YellowGreen;
 
             Bitmap img = new Bitmap(Properties.Resources.floppy);
             PictureBox pb = new PictureBox();

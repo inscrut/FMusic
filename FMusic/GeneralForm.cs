@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FMusic
@@ -18,8 +13,6 @@ namespace FMusic
 
         private delegate void _RError(string msg);
         private event _RError ErrorEvent;
-        private delegate void _RWarning(string msg);
-        private event _RError WarningEvent;
 
         public GeneralForm()
         {
@@ -28,16 +21,20 @@ namespace FMusic
             this.Size = new Size(545, 270);
             this.Resize += GeneralForm_Resize;
 
+            gpanel = new Panel();
+            gpanel.AutoScroll = true;
+            gpanel.Location = new Point(0, 24);
+            gpanel.Size = new Size(this.Size.Width - 15, this.Size.Height - 60);
+            gpanel.Resize += Gpanel_Resize;
+            this.Controls.Add(gpanel);
+
             ErrorEvent += GeneralForm_ErrorEvent;
-            WarningEvent += GeneralForm_WarningEvent;
         }
 
-        private void GeneralForm_WarningEvent(string msg)
+        public void GeneralForm_ErrorEvent(string msg)
         {
-            MessageBox.Show(msg, "Внимание!", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-        }
-        private void GeneralForm_ErrorEvent(string msg)
-        {
+            // Общий метод показа ошибок...
+            // ...Потому что я так хочу
             MessageBox.Show(msg, "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
@@ -48,19 +45,50 @@ namespace FMusic
 
         private void Item_ItemClicked(int id, EventArgs e)
         {
-            if ((e as MouseEventArgs).Button == MouseButtons.Left)
+            try
             {
-                foreach (var i in items)
-                    if (i.getID == id)
-                        i.changeColor = Color.Green;
+                if ((e as MouseEventArgs).Button == MouseButtons.Left)
+                {
+                    foreach (var i in items)
+                        if (i.getID == id)
+                        {
+                            //
+                        }
+                }
+                else if ((e as MouseEventArgs).Button == MouseButtons.Right)
+                {
+                    foreach (var i in items)
+                        if (i.getID == id)
+                        {
+                            using (ChangeFloppySettings cfs = new ChangeFloppySettings(this, i.getID, i.getStepPin, i.getDirPin))
+                            {
+                                cfs.ShowDialog();
+                                if (cfs.DialogResult == DialogResult.OK)
+                                {
+                                    initProg();
+                                }
+                                else if (cfs.DialogResult == DialogResult.Cancel)
+                                {
+                                    //
+                                }
+                                else if (cfs.DialogResult == DialogResult.Abort)
+                                {
+                                    //
+                                }
+                                else
+                                {
+                                    //
+                                }
+                                break;
+                            }
+                        }
+                }
+                else { }
             }
-            else if ((e as MouseEventArgs).Button == MouseButtons.Right)
+            catch (Exception ex)
             {
-                foreach (var i in items)
-                    if (i.getID == id)
-                        i.changeColor = Color.Red;
+                ErrorEvent(ex.Message);
             }
-            else { }
         }
 
         private void Gpanel_Resize(object sender, EventArgs e)
@@ -74,15 +102,10 @@ namespace FMusic
 
         private void initProg()
         {
-            if (gpanel != null) this.Controls.Remove(gpanel);
             try
             {
-                gpanel = new Panel();
-                gpanel.AutoScroll = true;
-                gpanel.Location = new Point(0, 24);
-                gpanel.Size = new Size(this.Size.Width - 15, this.Size.Height - 60);
-                gpanel.Resize += Gpanel_Resize;
-                this.Controls.Add(gpanel);
+                if (gpanel != null) gpanel.Controls.Clear();
+                if (items != null) items.Clear(); //На всякий...
 
                 items = new List<ItemPanel>();
 
@@ -90,11 +113,11 @@ namespace FMusic
                     addItems();
                 else
                 {
-                    if (MessageBox.Show(
-                        "Файл settings.cfg не найден или не существует!\r\nСоздать новый?", 
-                        "Внимание!", 
-                        MessageBoxButtons.YesNo, 
-                        MessageBoxIcon.Warning) == DialogResult.Yes)
+                    if ( MessageBox.Show(
+                         "Файл settings.cfg не найден или не существует!\r\nСоздать новый?", 
+                         "Внимание!", 
+                         MessageBoxButtons.YesNo, 
+                         MessageBoxIcon.Warning) == DialogResult.Yes )
                     {
                         makeDefaulCfg();
                         addItems();
@@ -115,17 +138,14 @@ namespace FMusic
             }
         }
 
+        //Для читаемости кода вынес в подпрограммы
         private void addItems()
         {
-            try
+            using (Stream stream = new FileStream("settings.cfg", FileMode.Open))
             {
-                using (Stream stream = new FileStream("settings.cfg", FileMode.Open))
-                    foreach (var i in readSettings(stream))
-                        items.Add(new ItemPanel(i));
-            }
-            catch (Exception e)
-            {
-                //ErrorEvent(e.Message);
+                foreach (var i in readSettings(stream))
+                    items.Add(new ItemPanel(i));
+                stream.Close();
             }
         }
         private void showItems()
@@ -148,50 +168,39 @@ namespace FMusic
         {
             List<FloppySettings> fs = new List<FloppySettings>();
 
-            try
+            using (StreamReader sr = new StreamReader(stream))
             {
-                using (StreamReader sr = new StreamReader(stream))
+                string line;
+                while ((line = sr.ReadLine()) != null)
                 {
-                    string line;
-                    while ((line = sr.ReadLine()) != null)
+                    switch (line.Split()[0])
                     {
-                        switch (line.Split()[0])
-                        {
-                            case "#":
-                                continue;
-                            case "floppy":
-                                fs.Add(new FloppySettings(Convert.ToInt32(line.Split()[1]), Convert.ToInt32(line.Split()[2]), Convert.ToInt32(line.Split()[3])));
-                                break;
-                            default:
-                                break;
-                        }
+                        case "#":
+                            continue;
+                        case "floppy":
+                            fs.Add(new FloppySettings(Convert.ToInt32(line.Split()[1]), Convert.ToInt32(line.Split()[2]), Convert.ToInt32(line.Split()[3])));
+                            break;
+                        default:
+                            break;
                     }
                 }
+                sr.Close();
             }
-            catch (Exception e)
-            {
-                //ErrorEvent(e.Message);
-            }            
 
             return fs;
         }
         private void makeDefaulCfg()
         {
-            try
+            using (Stream stream = new FileStream("settings.cfg", FileMode.Create))
             {
-                using (Stream stream = new FileStream("settings.cfg", FileMode.Create))
+                using (StreamWriter sw = new StreamWriter(stream))
                 {
-                    using(StreamWriter sw = new StreamWriter(stream))
-                    {
-                        sw.WriteLine("# floppy <ID> <step_pin> <direction_pin>");
-                        sw.WriteLine("floppy 1 3 4");
-                        sw.WriteLine("floppy 2 5 6");
-                    }
+                    sw.WriteLine("# floppy <ID> <step_pin> <direction_pin>");
+                    sw.WriteLine("floppy 1 3 4");
+                    sw.WriteLine("floppy 2 5 6");
+                    sw.Close();
                 }
-            }
-            catch (Exception e)
-            {
-                //ErrorEvent(e.Message);
+                stream.Close();
             }
         }
     }
