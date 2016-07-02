@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace FMusic
@@ -14,12 +10,12 @@ namespace FMusic
         private int _id = 0;
         private int _step = 0;
         private int _dir = 0;
+        private string _path = null;
 
         /// <summary>
         /// Получить панель
         /// </summary>
         public Panel getItem { get { return item; } }
-
         /// <summary>
         /// Получить ID
         /// </summary>
@@ -32,6 +28,10 @@ namespace FMusic
         /// Получить номер направляющего порта
         /// </summary>
         public int getDirPin { get { return _dir; } }
+        /// <summary>
+        /// Установить путь до файла
+        /// </summary>
+        public string setPath { get { return _path; } set { _path = value; } }
 
         /// <summary>
         /// Изменить цвет
