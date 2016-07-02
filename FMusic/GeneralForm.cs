@@ -58,7 +58,15 @@ namespace FMusic
                     foreach (var i in items)
                         if (i.getID == id)
                         {
-                            //
+                            if(i.setPath == null)
+                            {
+                                using (OpenFileDialog ofd = new OpenFileDialog())
+                                    if (ofd.ShowDialog() == DialogResult.OK) i.setPath = ofd.FileName;
+                            }
+                            else
+                            {
+                                //MessageBox.Show(i.setPath);
+                            }
                         }
                 }
                 else if ((e as MouseEventArgs).Button == MouseButtons.Right)
@@ -81,7 +89,11 @@ namespace FMusic
                             };
                             cms.Items[1].Click += (object sender, EventArgs ex) => 
                             {
-                                if(MessageBox.Show("Удалить floppy привод?", "Подтвердите действие", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                                if(MessageBox.Show(
+                                    "Удалить floppy привод?", 
+                                    "Подтвердите действие", 
+                                    MessageBoxButtons.YesNo, 
+                                    MessageBoxIcon.Question) == DialogResult.Yes)
                                 {
                                     removeDrives(i.getID);
                                     initProg();
