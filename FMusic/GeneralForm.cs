@@ -19,7 +19,7 @@ namespace FMusic
         {
             InitializeComponent();
 
-            this.Size = new Size(545, 270);
+            this.Size = new Size(545, 285);
             this.Resize += GeneralForm_Resize;
 
             gpanel = new Panel();
