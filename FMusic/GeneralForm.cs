@@ -43,6 +43,9 @@ namespace FMusic
         private void GeneralForm_Load(object sender, EventArgs e)
         {
             initProg();
+            //
+            TimeLine tl = new TimeLine();
+            tl.Show();
         }
         private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
         {
