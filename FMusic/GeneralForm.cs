@@ -31,6 +31,9 @@ namespace FMusic
             this.Controls.Add(gpanel);
 
             ErrorEvent += GeneralForm_ErrorEvent;
+
+            //
+            this.WindowState = FormWindowState.Minimized;
         }
 
         public void GeneralForm_ErrorEvent(string msg)
