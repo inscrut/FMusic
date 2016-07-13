@@ -13,6 +13,7 @@ namespace FMusic
     public partial class TimeLine : Form
     {
         private TextBox logger = null;
+        private int step = 0;
 
         public TimeLine()
         {
@@ -32,7 +33,11 @@ namespace FMusic
 
         private void GPanel_MouseClick(object sender, MouseEventArgs e)
         {
-            writeLog("Location: " + e.X.ToString() + ", " + e.Y.ToString());
+            if (step <= 0) return;
+            var cl = getPoint(step, e.Location);
+            writeLog(
+                "Location: " + e.X.ToString() + ", " + e.Y.ToString()
+                + " (" + cl.X.ToString() + ", " + cl.Y.ToString() + ");");
         }
 
         private void TimeLine_Resize(object sender, EventArgs e)
@@ -48,17 +53,19 @@ namespace FMusic
 
         private void ScrollBar_timeline_ValueChanged(object sender, EventArgs e)
         {
-            //MessageBox.Show("");
+            //
         }
 
         private void GPanel_Paint(object sender, PaintEventArgs e)
         {
             clearLog();
-            int step = getStep(sender);
+            step = getStep(sender);
+            if (step <= 0) return;
             using (var g = e.Graphics)
             {
                 drawStan(sender, g, step);
                 writeLog("Step: " + step.ToString());
+                showPoints(g, step, getAllPoints(step, sender));
             }
         }
 
@@ -69,14 +76,53 @@ namespace FMusic
             return _step;
         }
 
-        private Point getPoint(object _panel, int _step, Point _click)
+        private Point getPoint(int _step, Point _loc)
         {
-            return new Point(0,0);
+            Point p = new Point(0, 0);
+            int buf = 0;
+
+            for (int i = _step / 2; i < _loc.X; i += _step)
+                buf++;
+            p.X = buf;
+            buf = 0;
+            for (int i = _step / 2; i < _loc.Y; i += _step)
+                buf++;
+            p.Y = buf;
+
+            return p;
         }
 
-        private void showPoints(object panel, Graphics paint)
+        private Point getLoc(int _step, Point _point)
         {
+            Point p = new Point(0, 0);
 
+            p.X = _step * _point.X;
+            p.Y = _step * _point.Y;
+
+            return p;
+        }
+
+        private List<Point> getAllPoints(int _step, object panel)
+        {
+            List<Point> res = new List<Point>();
+            var p = panel as Panel;
+
+            for(int i = 1; i < (p.Width / _step) + 1; i++)
+                for(int j=1; j<7; j++)
+                    res.Add(new Point(i, j));
+
+            return res;
+        }
+
+        private void showPoints(Graphics paint, int _step, List<Point> points)
+        {
+            foreach (var point in points)
+                drawBox(paint, getLoc(_step, point));
+        }
+
+        private void drawBox(Graphics paint, Point _loc)
+        {
+            paint.DrawRectangle(new Pen(Color.Red), _loc.X - 5, _loc.Y - 5, 10, 10);
         }
 
         private void drawStan(object _panel, Graphics _paint, int _step)
