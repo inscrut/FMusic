@@ -108,8 +108,11 @@ namespace FMusic
             var p = panel as Panel;
 
             for(int i = 1; i < (p.Width / _step) + 1; i++)
-                for(int j=1; j<7; j++)
+            {
+                if (getLoc(_step, new Point(i, 1)).X + _step / 2 > p.Width) break;
+                for (int j = 1; j < 7; j++)
                     res.Add(new Point(i, j));
+            }
 
             return res;
         }
