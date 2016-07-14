@@ -31,6 +31,9 @@ namespace FMusic
             this.Controls.Add(gpanel);
 
             ErrorEvent += GeneralForm_ErrorEvent;
+
+            //
+            this.WindowState = FormWindowState.Minimized;
         }
 
         public void GeneralForm_ErrorEvent(string msg)
@@ -43,6 +46,9 @@ namespace FMusic
         private void GeneralForm_Load(object sender, EventArgs e)
         {
             initProg();
+            //
+            TimeLine tl = new TimeLine();
+            tl.Show();
         }
         private void выйтиToolStripMenuItem_Click(object sender, EventArgs e)
         {
