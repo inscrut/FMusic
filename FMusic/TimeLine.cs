@@ -15,6 +15,13 @@ namespace FMusic
         private TextBox logger = null;
         private int step = 0;
 
+        private List<Note> nlist = new List<Note>()
+        {
+            new Note(new Point(1, 6), 1),
+            new Note(new Point(2, 6), 1),
+            new Note(new Point(3, 5), 1)
+        };
+
         public TimeLine()
         {
             InitializeComponent();
@@ -66,6 +73,7 @@ namespace FMusic
                 drawStan(sender, g, step);
                 writeLog("Step: " + step.ToString());
                 showPoints(g, step, getAllPoints(step, sender));
+                drawNotes(g, step, nlist);
             }
         }
 
@@ -102,10 +110,10 @@ namespace FMusic
             return p;
         }
 
-        private List<Point> getAllPoints(int _step, object panel)
+        private List<Point> getAllPoints(int _step, object _panel)
         {
             List<Point> res = new List<Point>();
-            var p = panel as Panel;
+            var p = _panel as Panel;
 
             for(int i = 1; i < (p.Width / _step) + 1; i++)
             {
@@ -117,15 +125,15 @@ namespace FMusic
             return res;
         }
 
-        private void showPoints(Graphics paint, int _step, List<Point> points)
+        private void showPoints(Graphics _paint, int _step, List<Point> _points)
         {
-            foreach (var point in points)
-                drawBox(paint, getLoc(_step, point));
+            foreach (var point in _points)
+                drawBox(_paint, getLoc(_step, point));
         }
 
-        private void drawBox(Graphics paint, Point _loc)
+        private void drawBox(Graphics _paint, Point _loc)
         {
-            paint.DrawRectangle(new Pen(Color.Red), _loc.X - 5, _loc.Y - 5, 10, 10);
+            _paint.DrawRectangle(new Pen(Color.Red), _loc.X - 5, _loc.Y - 5, 10, 10);
         }
 
         private void drawStan(object _panel, Graphics _paint, int _step)
@@ -135,6 +143,12 @@ namespace FMusic
             for (int i = p.Height - _step; i > _step; i -= _step)
                 if(i == p.Height - _step) _paint.DrawLine(new Pen(Color.Gray, 2.0F) { DashStyle = System.Drawing.Drawing2D.DashStyle.Dash }, 0, i, p.Width, i);
                 else _paint.DrawLine(new Pen(Color.Black, 2.0F), 0, i, p.Width, i);
+        }
+
+        private void drawNotes(Graphics _paint, int _step, List<Note> _notes)
+        {
+            foreach (var note in _notes)
+                _paint.DrawImage(note.getImage(), getLoc(_step, note.getPointNote));
         }
 
         private void showDebug()
