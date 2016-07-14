@@ -12,14 +12,14 @@ namespace FMusic
 {
     public partial class TimeLine : Form
     {
-        private TextBox logger = null;
+        //private TextBox logger = null;
         private int step = 0;
 
         private List<Note> nlist = new List<Note>()
         {
-            new Note(new Point(1, 6), 1),
-            new Note(new Point(2, 6), 1),
-            new Note(new Point(3, 5), 1)
+            //new Note(new Point(1, 6), 1),
+            //new Note(new Point(2, 6), 1),
+            //new Note(new Point(3, 5), 1)
         };
 
         public TimeLine()
@@ -33,18 +33,21 @@ namespace FMusic
             GPanel.Paint += GPanel_Paint;
             GPanel.MouseClick += GPanel_MouseClick;
 
-            this.DesktopLocation = new Point(0, 0);
-
-            showDebug();
+            //this.DesktopLocation = new Point(0, 0);
         }
 
         private void GPanel_MouseClick(object sender, MouseEventArgs e)
         {
             if (step <= 0) return;
-            var cl = getPoint(step, e.Location);
-            writeLog(
-                "Location: " + e.X.ToString() + ", " + e.Y.ToString()
-                + " (" + cl.X.ToString() + ", " + cl.Y.ToString() + ");");
+
+            if(e.Button == MouseButtons.Left)
+                addNote(getPoint(step, e.Location), 1, ref nlist);
+            else if (e.Button == MouseButtons.Right)
+                removeNote(getPoint(step, e.Location), ref nlist);
+
+            sortNote(ref nlist);
+            advSort(ref nlist);
+            GPanel.Refresh();
         }
 
         private void TimeLine_Resize(object sender, EventArgs e)
@@ -65,13 +68,11 @@ namespace FMusic
 
         private void GPanel_Paint(object sender, PaintEventArgs e)
         {
-            clearLog();
             step = getStep(sender);
             if (step <= 0) return;
             using (var g = e.Graphics)
             {
                 drawStan(sender, g, step);
-                writeLog("Step: " + step.ToString());
                 showPoints(g, step, getAllPoints(step, sender));
                 drawNotes(g, step, nlist);
             }
@@ -131,6 +132,68 @@ namespace FMusic
                 drawBox(_paint, getLoc(_step, point));
         }
 
+        private void addNote(Point _point, int _type, ref List<Note> _notes)
+        {
+            foreach (var note in _notes)
+            {
+                if(note.getPointNote.X == _point.X)
+                {
+                    _notes.Remove(note);
+                    break;
+                }
+            }
+
+            _notes.Add(new Note(_point, _type));
+
+            GPanel.Refresh();
+        }
+
+        private void removeNote(Point _point, ref List<Note> _notes)
+        {
+            foreach (var note in _notes)
+            {
+                if(note.getPointNote == _point)
+                {
+                    _notes.Remove(note);
+                    break;
+                }
+            }
+
+            sortNote(ref _notes);
+            advSort(ref _notes);
+
+            GPanel.Refresh();
+        }
+
+        private void sortNote(ref List<Note> _notes)
+        {
+            List<Note> newlist = new List<Note>();
+            int max = _notes.Count;
+
+            Note buff;
+            for (int i = 0; i < max; i++)
+            {
+                buff = _notes[0];
+                foreach (var note in _notes)
+                    if (note.getPointNote.X > buff.getPointNote.X) buff = note;
+                newlist.Add(buff);
+                _notes.Remove(buff);
+            }
+
+            newlist.Reverse();
+            _notes = newlist;
+        }
+
+        private void advSort(ref List<Note> _notes)
+        {
+            int val = 1;
+            foreach (var item in _notes)
+            {
+                item.setPointX = val;
+                val++;
+            }
+        }
+
         private void drawBox(Graphics _paint, Point _loc)
         {
             _paint.DrawRectangle(new Pen(Color.Red), _loc.X - 5, _loc.Y - 5, 10, 10);
@@ -151,6 +214,7 @@ namespace FMusic
                 _paint.DrawImage(note.getImage(), getLoc(_step, note.getPointNote));
         }
 
+        /*Debug
         private void showDebug()
         {
             try
@@ -191,5 +255,6 @@ namespace FMusic
             if (logger == null) return;
             logger.Text = "";
         }
+        */
     }
 }
