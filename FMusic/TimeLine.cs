@@ -12,14 +12,14 @@ namespace FMusic
 {
     public partial class TimeLine : Form
     {
-        private TextBox logger = null;
+        //private TextBox logger = null;
         private int step = 0;
 
         private List<Note> nlist = new List<Note>()
         {
-            new Note(new Point(1, 6), 1),
-            new Note(new Point(2, 6), 1),
-            new Note(new Point(3, 5), 1)
+            //new Note(new Point(1, 6), 1),
+            //new Note(new Point(2, 6), 1),
+            //new Note(new Point(3, 5), 1)
         };
 
         public TimeLine()
@@ -33,22 +33,21 @@ namespace FMusic
             GPanel.Paint += GPanel_Paint;
             GPanel.MouseClick += GPanel_MouseClick;
 
-            this.DesktopLocation = new Point(0, 0);
-
-            //showDebug();
+            //this.DesktopLocation = new Point(0, 0);
         }
 
         private void GPanel_MouseClick(object sender, MouseEventArgs e)
         {
             if (step <= 0) return;
+
             if(e.Button == MouseButtons.Left)
-            {
                 addNote(getPoint(step, e.Location), 1, ref nlist);
-            }
             else if (e.Button == MouseButtons.Right)
-            {
                 removeNote(getPoint(step, e.Location), ref nlist);
-            }
+
+            sortNote(ref nlist);
+            advSort(ref nlist);
+            GPanel.Refresh();
         }
 
         private void TimeLine_Resize(object sender, EventArgs e)
@@ -69,7 +68,6 @@ namespace FMusic
 
         private void GPanel_Paint(object sender, PaintEventArgs e)
         {
-            clearLog();
             step = getStep(sender);
             if (step <= 0) return;
             using (var g = e.Graphics)
@@ -216,7 +214,7 @@ namespace FMusic
                 _paint.DrawImage(note.getImage(), getLoc(_step, note.getPointNote));
         }
 
-        //Debug
+        /*Debug
         private void showDebug()
         {
             try
@@ -257,5 +255,6 @@ namespace FMusic
             if (logger == null) return;
             logger.Text = "";
         }
+        */
     }
 }
