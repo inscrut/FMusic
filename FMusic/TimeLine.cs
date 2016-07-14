@@ -35,16 +35,20 @@ namespace FMusic
 
             this.DesktopLocation = new Point(0, 0);
 
-            showDebug();
+            //showDebug();
         }
 
         private void GPanel_MouseClick(object sender, MouseEventArgs e)
         {
             if (step <= 0) return;
-            var cl = getPoint(step, e.Location);
-            writeLog(
-                "Location: " + e.X.ToString() + ", " + e.Y.ToString()
-                + " (" + cl.X.ToString() + ", " + cl.Y.ToString() + ");");
+            if(e.Button == MouseButtons.Left)
+            {
+                addNote(getPoint(step, e.Location), 1, ref nlist);
+            }
+            else if (e.Button == MouseButtons.Right)
+            {
+                removeNote(getPoint(step, e.Location), ref nlist);
+            }
         }
 
         private void TimeLine_Resize(object sender, EventArgs e)
@@ -71,7 +75,6 @@ namespace FMusic
             using (var g = e.Graphics)
             {
                 drawStan(sender, g, step);
-                writeLog("Step: " + step.ToString());
                 showPoints(g, step, getAllPoints(step, sender));
                 drawNotes(g, step, nlist);
             }
@@ -131,6 +134,36 @@ namespace FMusic
                 drawBox(_paint, getLoc(_step, point));
         }
 
+        private void addNote(Point _point, int _type, ref List<Note> _notes)
+        {
+            foreach (var note in _notes)
+            {
+                if(note.getPointNote.X == _point.X)
+                {
+                    _notes.Remove(note);
+                    break;
+                }
+            }
+
+            _notes.Add(new Note(_point, _type));
+
+            GPanel.Refresh();
+        }
+
+        private void removeNote(Point _point, ref List<Note> _notes)
+        {
+            foreach (var note in _notes)
+            {
+                if(note.getPointNote == _point)
+                {
+                    _notes.Remove(note);
+                    break;
+                }
+            }
+
+            GPanel.Refresh();
+        }
+
         private void drawBox(Graphics _paint, Point _loc)
         {
             _paint.DrawRectangle(new Pen(Color.Red), _loc.X - 5, _loc.Y - 5, 10, 10);
@@ -151,6 +184,7 @@ namespace FMusic
                 _paint.DrawImage(note.getImage(), getLoc(_step, note.getPointNote));
         }
 
+        //Debug
         private void showDebug()
         {
             try
