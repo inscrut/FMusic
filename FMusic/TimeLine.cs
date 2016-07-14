@@ -161,7 +161,39 @@ namespace FMusic
                 }
             }
 
+            sortNote(ref _notes);
+            advSort(ref _notes);
+
             GPanel.Refresh();
+        }
+
+        private void sortNote(ref List<Note> _notes)
+        {
+            List<Note> newlist = new List<Note>();
+            int max = _notes.Count;
+
+            Note buff;
+            for (int i = 0; i < max; i++)
+            {
+                buff = _notes[0];
+                foreach (var note in _notes)
+                    if (note.getPointNote.X > buff.getPointNote.X) buff = note;
+                newlist.Add(buff);
+                _notes.Remove(buff);
+            }
+
+            newlist.Reverse();
+            _notes = newlist;
+        }
+
+        private void advSort(ref List<Note> _notes)
+        {
+            int val = 1;
+            foreach (var item in _notes)
+            {
+                item.setPointX = val;
+                val++;
+            }
         }
 
         private void drawBox(Graphics _paint, Point _loc)

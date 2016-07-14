@@ -35,8 +35,9 @@ namespace FMusic
         }
 
         public Point getPointNote { get { return _point; } }
-        //public Point getLocationNote { get { return _loc; } }
+        public int setPointX { set { _point.X = value; } }
         public int getTypeNote { get { return _type; } }
+        //public Point getLocationNote { get { return _loc; } }
 
         public Bitmap getImage()
         {
